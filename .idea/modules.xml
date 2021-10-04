@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/gateway-project-demo.iml" filepath="$PROJECT_DIR$/.idea/gateway-project-demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ms-pagamento/ms-pagamento.iml" filepath="$PROJECT_DIR$/ms-pagamento/ms-pagamento.iml" />
       <module fileurl="file://$PROJECT_DIR$/ms-repository/ms-repository.iml" filepath="$PROJECT_DIR$/ms-repository/ms-repository.iml" />
     </modules>
   </component>

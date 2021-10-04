@@ -4,7 +4,6 @@ import com.demo.msrepository.model.dto.ProdutoDTO;
 import com.demo.msrepository.model.parser.ProdutoParser;
 import com.demo.msrepository.model.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,17 +12,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/produto")
 public class ProdutoController {
 
-    @Autowired private ProdutoParser parser;
     @Autowired private ProdutoService produtoService;
 
     @PostMapping
     public ResponseEntity<?> criarProduto(@RequestBody ProdutoDTO dto){
-        return new ResponseEntity<>(parser.toProduto(produtoService.criaAtualizaProduto(parser.toProduto(dto))), HttpStatus.CREATED);
+        return new ResponseEntity<>(produtoService.criaAtualizaProduto(dto), HttpStatus.CREATED);
     }
 
     @PutMapping
     public ResponseEntity<?> atualizarProduto(@RequestBody ProdutoDTO dto){
-        return new ResponseEntity<>(parser.toProduto(produtoService.criaAtualizaProduto(parser.toProduto(dto))), HttpStatus.OK);
+        return new ResponseEntity<>(produtoService.criaAtualizaProduto(dto), HttpStatus.OK);
     }
 
     @GetMapping
@@ -35,6 +33,6 @@ public class ProdutoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> retornarProdutos(@PathVariable String id){
-        return new ResponseEntity<>(parser.toProduto(produtoService.findById(id)), HttpStatus.OK);
+        return new ResponseEntity<>(produtoService.findById(id), HttpStatus.OK);
     }
 }

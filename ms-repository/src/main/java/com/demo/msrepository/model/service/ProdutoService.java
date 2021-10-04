@@ -3,6 +3,8 @@ package com.demo.msrepository.model.service;
 import com.demo.msrepository.model.dto.ProdutoDTO;
 import com.demo.msrepository.model.entity.Produto;
 import com.demo.msrepository.model.exceptions.ResourceNotFoundException;
+import com.demo.msrepository.model.message.ProdutoSendMessage;
+import com.demo.msrepository.model.parser.ProdutoParser;
 import com.demo.msrepository.model.repository.ProdutoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -21,23 +23,31 @@ import java.util.UUID;
 @Service
 public class ProdutoService {
 
+    @Autowired private ProdutoParser parser;
     @Autowired private ProdutoRepository produtoRepository;
+    @Autowired private ProdutoSendMessage produtoSendMessage;
 
-    public Produto criaAtualizaProduto(Produto produto){
+    public ProdutoDTO criaAtualizaProduto(ProdutoDTO produtoDTO){
         try {
-            if (Objects.isNull(produto.getId())) return produtoRepository.save(produto);
+            if (Objects.isNull(produtoDTO.getId())) {
+                Produto produtoSave = produtoRepository.save(parser.toProduto(produtoDTO));
+                produtoSendMessage.sendMessage(parser.toProduto(produtoSave));
+                return parser.toProduto(produtoSave);
+            }
 
-            Optional<Produto> optional = produtoRepository.findById(produto.getId());
+            Optional<Produto> optional = produtoRepository.findById(parser.toProduto(produtoDTO).getId());
             Produto pd = new Produto();
 
             if (optional.isPresent()) pd = optional.get();
-            pd.setNome(produto.getNome());
-            pd.setPreco(produto.getPreco());
-            pd.setEstoque(produto.getEstoque());
+            pd.setNome(produtoDTO.getNome());
+            pd.setPreco(produtoDTO.getPreco());
+            pd.setEstoque(produtoDTO.getEstoque());
 
-            return produtoRepository.save(pd);
+            Produto produtoUpdate = produtoRepository.save(pd);
+            produtoSendMessage.sendMessage(parser.toProduto(produtoUpdate));
+            return parser.toProduto(produtoUpdate);
         } catch (Exception e){
-            log.error("Ocorreu algum erro genérico na tentativa de salvar ou atualizar o produto na base.", ExceptionUtils.getStackTrace(e));
+            log.error("Ocorreu algum erro genérico na tentativa de salvar ou atualizar o produtoDTO na base.", ExceptionUtils.getStackTrace(e));
             throw new ResourceNotFoundException("");
         }
     }
@@ -54,7 +64,7 @@ public class ProdutoService {
         }
     }
 
-    public Produto findById(String id){
+    public ProdutoDTO findById(String id){
         try {
             verificarIdProduto(id);
             Produto produto = produtoRepository.findByProdutoId(UUID.fromString(id));
@@ -62,7 +72,7 @@ public class ProdutoService {
             if (Objects.isNull(produto))
                 throw new ResourceNotFoundException("");
 
-            return produto;
+            return parser.toProduto(produto);
         } catch (ResourceNotFoundException e){
             throw e;
         } catch (Exception e){
